@@ -1,0 +1,60 @@
+---
+title: "Bioinformatics_Q15"
+author: "Hyeonseok Jang (PID A59011126)"
+date: "7/16/2022"
+output: html_document
+---
+Load in all the necessary packages for this question.
+```{r}
+library(ggplot2)
+library(lubridate)
+library(dplyr)
+```
+
+Import data from the CSV file.
+```{r}
+variants <- read.csv("covid19_variants.csv")
+```
+
+See what types of COVID variants are in the data.
+```{r}
+table(variants$variant_name)
+```
+
+Subset the data to remove 'Total' and 'Other' from the 'variant_name' column
+```{r}
+variants.sequenced <- filter(variants, variant_name!="Total" & variant_name!="Other")
+```
+
+Make the 'date' column Date format
+```{r}
+variants.sequenced$date <- ymd(variants.sequenced$date)
+```
+
+Draw a line plot that shows changes in the proportions of each variant over time.
+```{r}
+variants.trend <- ggplot(data=variants.sequenced,
+                         aes(x=date, y=percentage, color=variant_name)) +
+                  geom_line(aes(group=variant_name))
+variants.trend
+```
+
+Modify axis and legend labels, and add a plot title and a caption according to the example figure in the PDF.
+```{r}
+variants.trend <- variants.trend +
+                  labs(x=NULL,
+                       y="Percentage of sequenced specimens",
+                       color=NULL,
+                       title="Covid-19 Variants in California",
+                       caption="Data Source: <https://www.cdph.ca.gov/>")
+variants.trend
+```
+
+Scale x axis and make the theme of plot match that of the example.
+```{r}
+variants.trend <- variants.trend +
+                  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+                  theme_bw() +
+                  theme(axis.text.x = element_text(angle = 60, hjust=1))
+variants.trend
+```
